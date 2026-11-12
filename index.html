@@ -140,8 +140,11 @@ h1{font-size:clamp(1.5rem,3vw,2.55rem);letter-spacing:.12em;text-align:center;co
 .action-btn .num{font-size:.62rem}
 .action-btn strong{font-size:.82rem}
 .character{transform-origin:50% 58%;transition:filter .12s ease-out;perspective:900px;overflow:visible}
+@keyframes characterIdle{0%,100%{translate:0 0;rotate:0deg}25%{translate:0 -5px;rotate:-.6deg}50%{translate:0 -8px;rotate:0deg}75%{translate:0 -3px;rotate:.6deg}}
+.character.firing #characterArt{animation:characterRecoil .38s ease-out}
+@keyframes characterRecoil{0%,100%{transform:perspective(700px) rotateY(var(--look-x,0deg)) rotateX(var(--look-y,0deg)) translateX(0)}35%{transform:perspective(700px) rotateY(var(--look-x,0deg)) rotateX(var(--look-y,0deg)) translateX(-7px) scale(1.025)}70%{transform:perspective(700px) rotateY(var(--look-x,0deg)) rotateX(var(--look-y,0deg)) translateX(3px)}}
 .character.aiming{filter:drop-shadow(0 0 20px rgba(0,255,90,.7)) drop-shadow(0 0 35px rgba(0,255,90,.35))}
-#character3d{display:block;width:100%;height:100%;min-height:100%;outline:none}
+#characterArt{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;user-select:none;-webkit-user-drag:none;transform:perspective(700px) rotateY(var(--look-x,0deg)) rotateX(var(--look-y,0deg));transform-origin:50% 62%;filter:drop-shadow(0 0 13px rgba(0,255,90,.35));animation:characterIdle 3.4s ease-in-out infinite;will-change:transform}
 .character-stage:after{
   content:"";position:absolute;inset:7% 12% 8%;z-index:-1;border-radius:50%;
   background:conic-gradient(from 0deg,transparent,rgba(0,255,90,.14),transparent,rgba(0,255,90,.10),transparent);
@@ -229,7 +232,7 @@ h1{font-size:clamp(1.5rem,3vw,2.55rem);letter-spacing:.12em;text-align:center;co
       </nav>
 
       <div class="character-stage" id="characterStage">
-        <div class="character" id="character" role="img" aria-label="Animated 3D hooded technology operator holding a glowing energy device"><canvas id="character3d"></canvas></div>
+        <div class="character" id="character" role="img" aria-label="Your original hooded technician character with glowing green glasses and handheld device"><img id="characterArt" src="my-character.png" alt="Your hooded technician character" draggable="false"></div>
         <span class="device-hint">FIELD UNIT // READY</span>
       </div>
 
@@ -404,180 +407,25 @@ function drawMatrix(){
 window.addEventListener('resize',resizeMatrix);resizeMatrix();setInterval(drawMatrix,55);
 </script>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-
-const host=document.getElementById('character3d');
-const wrap=document.getElementById('character');
-const stage=document.getElementById('characterStage');
-if(host && wrap && stage){
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(32,1,0.1,100);
-  camera.position.set(0,1.45,7.8);
-  camera.lookAt(0,1.35,0);
-
-  const renderer=new THREE.WebGLRenderer({canvas:host,alpha:true,antialias:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.outputColorSpace=THREE.SRGBColorSpace;
-  renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.25;
-
-  scene.add(new THREE.HemisphereLight(0x9bffc0,0x07140b,2.1));
-  const key=new THREE.DirectionalLight(0xe8fff0,3.0);key.position.set(-3,5,6);scene.add(key);
-  const rim=new THREE.PointLight(0x00ff66,26,9);rim.position.set(2,2.5,-2);scene.add(rim);
-  const fill=new THREE.PointLight(0x27aaff,8,8);fill.position.set(-3,1,3);scene.add(fill);
-
-  const mat=(color,rough=.72,metal=0)=>new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
-  const hoodie=mat(0x111b17,.88), hoodieEdge=mat(0x263a30,.8), pants=mat(0x263d68,.9);
-  const shoe=mat(0x080d0b,.8), sole=mat(0x8ba49a,.65), skin=mat(0xc58b68,.9);
-  const hair=mat(0x171a18), glass= new THREE.MeshStandardMaterial({color:0x32ff73,emissive:0x00ff45,emissiveIntensity:2.7,metalness:.25,roughness:.18});
-  const deviceMat=mat(0x263c31,.35,.7), dark=mat(0x050907,.4,.4);
-  const glow=new THREE.MeshStandardMaterial({color:0x24ff6b,emissive:0x00ff4c,emissiveIntensity:3.4});
-
-  const root=new THREE.Group();scene.add(root);
-  const torsoPivot=new THREE.Group();torsoPivot.position.y=1.85;root.add(torsoPivot);
-  function box(parent,w,h,d,material,x=0,y=0,z=0,r=.08){
-    const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
-    mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
+<script>
+// Your original character artwork is preserved as the on-screen character.
+// CSS transforms provide idle movement, pointer tracking, firing recoil and demo traversal.
+const hero=document.getElementById('character');
+const art=document.getElementById('characterArt');
+let aimX=0,aimY=0,firePulse=0;
+function trackHero(x,y){
+  const r=hero.getBoundingClientRect();
+  const dx=(x-(r.left+r.width/2))/(r.width/2);
+  const dy=(y-(r.top+r.height/2))/(r.height/2);
+  aimX=Math.max(-1,Math.min(1,dx)); aimY=Math.max(-1,Math.min(1,dy));
+  if(!hero.classList.contains('demo-sequence')){
+    art.style.setProperty('--look-x',`${aimX*5}deg`);
+    art.style.setProperty('--look-y',`${-aimY*3}deg`);
   }
-  function sphere(parent,x,y,z,sx,sy,sz,material){
-    const m=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),material);
-    m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.castShadow=true;parent.add(m);return m;
-  }
-  function limb(parent,a,b,r1,r2,material){
-    const v=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));
-    const m=new THREE.Mesh(new THREE.CylinderGeometry(r2,r1,v.length(),16),material);
-    m.position.copy(new THREE.Vector3(...a).add(new THREE.Vector3(...b)).multiplyScalar(.5));
-    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize());m.castShadow=true;parent.add(m);return m;
-  }
-
-  // Pelvis and articulated legs.
-  const pelvis=box(root,.76,.38,.42,hoodie,0,1.15,0);
-  const legs=[];
-  for(const side of [-1,1]){
-    const hip=new THREE.Group();hip.position.set(side*.22,1.12,0);root.add(hip);
-    limb(hip,[0,0,0],[0,-.58,0],.17,.13,pants);
-    sphere(hip,0,-.57,0,.14,.14,.14,pants);
-    limb(hip,[0,-.58,0],[0,-1.16,.03],.13,.105,pants);
-    const foot=new THREE.Group();foot.position.set(0,-1.18,.12);hip.add(foot);
-    box(foot,.29,.16,.48,shoe,0,-.02,.05);
-    box(foot,.30,.055,.49,sole,0,-.105,.05);
-    legs.push(hip);
-  }
-
-  // Hoodie torso, shoulders, hood and drawstrings.
-  const body=box(torsoPivot,.86,1.05,.48,hoodie,0,0,0);
-  sphere(torsoPivot,0,.46,-.12,.52,.54,.39,hoodieEdge);
-  box(torsoPivot,.035,.42,.018,sole,-.12,-.15,.25);
-  box(torsoPivot,.035,.42,.018,sole,.12,-.15,.25);
-  const hood=sphere(torsoPivot,0,.63,-.06,.48,.51,.43,hoodie);
-  const headPivot=new THREE.Group();headPivot.position.set(0,.52,.18);torsoPivot.add(headPivot);
-  sphere(headPivot,0,.18,.04,.34,.42,.32,skin);
-  sphere(headPivot,0,.49,-.04,.40,.38,.36,hoodie);
-  sphere(headPivot,0,.33,-.10,.39,.36,.34,hoodie);
-  // Face, nose, beard and luminous glasses.
-  sphere(headPivot,0,.08,.345,.22,.10,.045,hair);
-  sphere(headPivot,0,-.015,.31,.20,.09,.055,hair);
-  box(headPivot,.26,.045,.035,glass,-.16,.22,.355);
-  box(headPivot,.26,.045,.035,glass,.16,.22,.355);
-  box(headPivot,.055,.055,.04,dark,0,.22,.36);
-  box(headPivot,.06,.025,.025,hair,0,.02,.35);
-
-  // Shoulder pivots and segmented arms; right arm holds the energy device.
-  const arms=[];
-  for(const side of [-1,1]){
-    const shoulder=new THREE.Group();shoulder.position.set(side*.48,.34,0);torsoPivot.add(shoulder);
-    sphere(shoulder,0,0,0,.22,.22,.22,hoodieEdge);
-    limb(shoulder,[0,0,0],[side*.05,-.38,.08],.14,.12,hoodie);
-    sphere(shoulder,side*.05,-.38,.08,.13,.13,.13,hoodieEdge);
-    limb(shoulder,[side*.05,-.38,.08],[side*.02,-.65,.27],.12,.095,hoodie);
-    sphere(shoulder,side*.02,-.65,.27,.12,.12,.12,skin);
-    arms.push(shoulder);
-  }
-  const weapon=new THREE.Group();weapon.position.set(.02,-.64,.42);arms[1].add(weapon);
-  box(weapon,.19,.16,.50,deviceMat,0,0,.02);
-  box(weapon,.12,.09,.23,dark,0,.02,.31);
-  const muzzle=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.12,16),glow);
-  muzzle.rotation.x=Math.PI/2;muzzle.position.set(0,0,.38);weapon.add(muzzle);
-  const core=sphere(weapon,0,.10,.03,.08,.035,.12,glow);
-  const muzzleLight=new THREE.PointLight(0x00ff55,0,3);muzzleLight.position.set(0,0,.48);weapon.add(muzzleLight);
-
-  // Floating ground glow.
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(.72,.018,8,64),new THREE.MeshBasicMaterial({color:0x00ff55,transparent:true,opacity:.5}));
-  ring.rotation.x=Math.PI/2;ring.position.y=-.12;root.add(ring);
-
-  let targetYaw=0,targetPitch=0,fireKick=0,demoStart=0,demo=false;
-  const clock=new THREE.Clock();
-  function resize(){
-    const w=Math.max(1,stage.clientWidth),h=Math.max(1,stage.clientHeight);
-    renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
-  }
-  new ResizeObserver(resize).observe(stage);resize();
-
-  window.addEventListener('pointermove',e=>{
-    if(demo)return;
-    const rect=stage.getBoundingClientRect();
-    const nx=(e.clientX-(rect.left+rect.width/2))/(rect.width/2);
-    const ny=(e.clientY-(rect.top+rect.height/2))/(rect.height/2);
-    targetYaw=THREE.MathUtils.clamp(-nx*.72,-.85,.85);
-    targetPitch=THREE.MathUtils.clamp(-ny*.28,-.28,.28);
-  });
-  window.addEventListener('pointerdown',e=>{
-    if(e.target.closest('.action-btn')||e.target.closest('.demo-toggle'))return;
-    fireKick=1;
-    muzzleLight.intensity=10;
-    setTimeout(()=>muzzleLight.intensity=0,120);
-  });
-  document.querySelectorAll('.action-btn').forEach(b=>b.addEventListener('click',()=>{
-    fireKick=1;muzzleLight.intensity=13;setTimeout(()=>muzzleLight.intensity=0,150);
-  }));
-  document.getElementById('demoToggle').addEventListener('click',()=>{
-    demo=true;demoStart=clock.elapsedTime;
-    root.userData.demo=true;
-  });
-
-  function animate(){
-    requestAnimationFrame(animate);
-    const t=clock.getElapsedTime(),dt=Math.min(clock.getDelta(),.04);
-    const bob=Math.sin(t*2.2)*.035;
-    root.position.y=bob;
-    root.rotation.y=THREE.MathUtils.damp(root.rotation.y,targetYaw,5,dt);
-    torsoPivot.rotation.x=THREE.MathUtils.damp(torsoPivot.rotation.x,targetPitch+Math.sin(t*1.4)*.018,5,dt);
-    headPivot.rotation.y=THREE.MathUtils.damp(headPivot.rotation.y,targetYaw*.22,7,dt);
-    headPivot.rotation.x=Math.sin(t*1.7)*.018;
-    arms[1].rotation.x=THREE.MathUtils.damp(arms[1].rotation.x,-.16-fireKick*.22,8,dt);
-    arms[1].rotation.z=THREE.MathUtils.damp(arms[1].rotation.z,-.12,6,dt);
-    arms[0].rotation.x=Math.sin(t*1.6)*.035;
-    legs[0].rotation.x=Math.sin(t*2.1)*.025;
-    legs[1].rotation.x=-Math.sin(t*2.1)*.025;
-    fireKick=Math.max(0,fireKick-dt*3.6);
-    ring.rotation.z=t*.35;
-    core.material.emissiveIntensity=2.7+Math.sin(t*6)*.8;
-
-    if(demo){
-      const q=(t-demoStart)/3.9;
-      if(q<1){
-        const path=[
-          {x:0,y:0,z:0,yaw:0},
-          {x:-1.4,y:1.2,z:-.1,yaw:-.8},
-          {x:0,y:-.15,z:.25,yaw:Math.PI*1.2},
-          {x:1.45,y:.9,z:-.1,yaw:Math.PI*2},
-          {x:0,y:0,z:0,yaw:Math.PI*2}
-        ];
-        const f=q*4,i=Math.min(3,Math.floor(f)),u=f-i;
-        const a=path[i],b=path[i+1],ease=u*u*(3-2*u);
-        root.position.set(THREE.MathUtils.lerp(a.x,b.x,ease),bob+THREE.MathUtils.lerp(a.y,b.y,ease),THREE.MathUtils.lerp(a.z,b.z,ease));
-        root.rotation.y=THREE.MathUtils.lerp(a.yaw,b.yaw,ease);
-        root.rotation.z=Math.sin(q*Math.PI*8)*.16*(1-q);
-        if(q>.18&&q<.82){muzzleLight.intensity=4+Math.sin(t*28)*3}
-      }else{
-        demo=false;root.rotation.z=0;root.position.set(0,bob,0);root.userData.demo=false;
-      }
-    }
-    renderer.render(scene,camera);
-  }
-  animate();
 }
+window.addEventListener('pointermove',e=>trackHero(e.clientX,e.clientY));
+window.addEventListener('pointerleave',()=>hero.classList.remove('aiming'));
+window.addEventListener('pointerenter',()=>hero.classList.add('aiming'));
 </script>
 
 </body>
