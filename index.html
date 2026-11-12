@@ -127,6 +127,77 @@ h1{font-size:clamp(1.5rem,3vw,2.55rem);letter-spacing:.12em;text-align:center;co
 }
 @media(max-width:380px){.character{height:340px}.character-stage{min-height:340px}.action-btn{min-height:92px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+
+.demo-toggle{
+  border:1px solid var(--green);border-radius:8px;padding:9px 12px;
+  color:var(--green);background:rgba(0,35,14,.9);font:700 .7rem Consolas,monospace;
+  letter-spacing:.08em;cursor:pointer;box-shadow:0 0 12px #00ff6633
+}
+.demo-toggle:hover{background:#06451d;color:#fff;box-shadow:0 0 20px #00ff6688}
+.hero-grid{grid-template-columns:minmax(205px,1fr) minmax(300px,440px) minmax(205px,1fr)}
+.action-rail{gap:11px}
+.action-btn{min-height:76px;padding:11px 13px}
+.action-btn .num{font-size:.62rem}
+.action-btn strong{font-size:.82rem}
+.character{transform-origin:50% 58%;transition:transform .12s ease-out,filter .12s ease-out}
+.character.aiming{filter:drop-shadow(0 0 20px rgba(0,255,90,.7)) drop-shadow(0 0 35px rgba(0,255,90,.35))}
+.character-stage:after{
+  content:"";position:absolute;inset:7% 12% 8%;z-index:-1;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent,rgba(0,255,90,.14),transparent,rgba(0,255,90,.10),transparent);
+  filter:blur(18px);animation:auraRotate 5s linear infinite
+}
+.shot-layer{z-index:9}
+.laser{height:6px;filter:drop-shadow(0 0 7px #fff);animation:kiBlast .48s ease-out forwards}
+.impact{width:32px;height:32px;border:2px solid #eaffef;background:radial-gradient(circle,white 0 8%,#a5ffbd 12%,#00ff66 28%,transparent 70%);animation:energyBurst .62s cubic-bezier(.12,.72,.2,1) forwards}
+.energy-ring{
+  position:fixed;width:52px;height:52px;border:3px solid #d8ffe3;border-radius:50%;
+  transform:translate(-50%,-50%);box-shadow:0 0 12px white,0 0 30px #00ff66;
+  animation:ringExpand .55s ease-out forwards
+}
+.character.firing{animation:recoil .38s ease-out}
+.character.demo-sequence{
+  position:fixed!important;z-index:12!important;width:min(24vw,245px)!important;height:min(34vw,310px)!important;
+  max-width:none!important;object-fit:contain;pointer-events:none;
+  filter:drop-shadow(0 0 24px #00ff66) drop-shadow(0 0 48px #00ff6688);
+  animation:heroSwing 3.9s cubic-bezier(.45,.02,.25,1) forwards!important
+}
+.web-trail{
+  position:fixed;z-index:11;inset:0;width:100%;height:100%;pointer-events:none;
+  opacity:0;animation:webFlash 3.9s ease-in-out forwards
+}
+.web-trail path{fill:none;stroke:#e8fff0;stroke-width:2.3;stroke-linecap:round;stroke-dasharray:7 8;filter:drop-shadow(0 0 5px white) drop-shadow(0 0 12px #00ff66)}
+@keyframes auraRotate{to{transform:rotate(360deg)}}
+@keyframes kiBlast{
+  0%{opacity:0;transform:rotate(var(--angle)) scaleX(.25)}
+  12%{opacity:1;transform:rotate(var(--angle)) scaleX(1.08)}
+  72%{opacity:1}100%{opacity:0;transform:rotate(var(--angle)) scaleX(1.18)}
+}
+@keyframes energyBurst{0%{opacity:1;transform:translate(-50%,-50%) scale(.2)}55%{opacity:1;transform:translate(-50%,-50%) scale(2.5)}100%{opacity:0;transform:translate(-50%,-50%) scale(4.2)}}
+@keyframes ringExpand{to{opacity:0;transform:translate(-50%,-50%) scale(3.8)}}
+@keyframes recoil{0%,100%{filter:drop-shadow(0 0 16px rgba(0,255,90,.34))}30%{transform:translateX(-5px) scale(1.025);filter:drop-shadow(0 0 28px #00ff66)}}
+@keyframes webFlash{0%,10%{opacity:0}18%,77%{opacity:1}100%{opacity:0}}
+@keyframes heroSwing{
+  0%{left:50%;top:auto;bottom:5vh;transform:translate(-50%,0) rotate(0deg) scale(1);opacity:1}
+  18%{left:8vw;top:7vh;bottom:auto;transform:translate(-50%,-50%) rotate(-22deg) scale(.88);opacity:1}
+  30%{left:8vw;top:7vh;bottom:auto;transform:translate(-50%,-50%) rotate(15deg) scale(.88);opacity:1}
+  52%{left:50%;top:52vh;bottom:auto;transform:translate(-50%,-50%) rotate(190deg) scale(.96);opacity:1}
+  70%{left:91vw;top:15vh;bottom:auto;transform:translate(-50%,-50%) rotate(365deg) scale(.88);opacity:1}
+  82%{left:91vw;top:15vh;bottom:auto;transform:translate(-50%,-50%) rotate(390deg) scale(.88);opacity:1}
+  100%{left:50%;top:auto;bottom:5vh;transform:translate(-50%,0) rotate(720deg) scale(1);opacity:0}
+}
+.action-btn.hit{animation:buttonHit .48s ease-out}
+@media(max-width:760px){
+  .hero-grid{grid-template-columns:1fr 1fr}
+  .character-stage{grid-column:1 / -1;grid-row:1}
+  .action-rail{display:grid;grid-template-columns:1fr 1fr;grid-row:2}
+  .action-btn{min-height:84px}
+  .top-meta{gap:9px;flex-wrap:wrap;justify-content:flex-end}
+}
+@media(prefers-reduced-motion:reduce){
+  .character-stage:after{animation:none}
+  .character.demo-sequence{animation:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -134,7 +205,8 @@ h1{font-size:clamp(1.5rem,3vw,2.55rem);letter-spacing:.12em;text-align:center;co
 <div class="shell">
   <header class="topbar">
     <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>NEON NOC // COMMAND</span></div>
-    <div class="top-meta"><span><i class="live-dot"></i>SIMULATION ONLINE</span><span id="clock">--:--:--</span></div>
+    <div class="top-meta"><span><i class="live-dot"></i>SIMULATION ONLINE</span><span id="clock">--:--:--</span>
+      <button class="demo-toggle" id="demoToggle" type="button">▶ DEMO MODE</button></div>
   </header>
 
   <h1>NETWORK CONTROL DECK</h1>
@@ -143,14 +215,16 @@ h1{font-size:clamp(1.5rem,3vw,2.55rem);letter-spacing:.12em;text-align:center;co
   <section class="metrics" aria-label="Demo system metrics">
     <div class="metric"><small>DEMO NODES</small><strong id="nodes">128</strong></div>
     <div class="metric"><small>LINK QUALITY</small><strong>OPTIMAL</strong></div>
-    <div class="metric"><small>THREAT LEVEL</small><strong>LOW</strong></div>
+    <div class="metric"><small>THREAT LEVEL // TARGET</small><strong>LOW</strong></div>
   </section>
 
   <main class="stage-wrap">
     <div class="hero-grid">
       <nav class="action-rail left" aria-label="Left-side commands">
-        <button class="action-btn" data-command="Network scan"><span class="num">COMMAND 01</span><strong>NETWORK SCAN</strong><small>Map active connections</small></button>
-        <button class="action-btn" data-command="Firewall check"><span class="num">COMMAND 02</span><strong>FIREWALL CHECK</strong><small>Inspect perimeter status</small></button>
+        <button class="action-btn" data-action="network-scan" data-command="Network scan"><span class="num">COMMAND 01</span><strong>NETWORK SCAN</strong><small>Map active connections</small></button>
+        <button class="action-btn" data-action="firewall-audit" data-command="Firewall audit"><span class="num">COMMAND 02</span><strong>FIREWALL AUDIT</strong><small>Review perimeter controls</small></button>
+        <button class="action-btn" data-action="endpoint-health" data-command="Endpoint health"><span class="num">COMMAND 03</span><strong>ENDPOINT HEALTH</strong><small>Check connected devices</small></button>
+        <button class="action-btn" data-action="incident-response" data-command="Incident response"><span class="num">COMMAND 04</span><strong>INCIDENT RESPONSE</strong><small>Open response workflow</small></button>
       </nav>
 
       <div class="character-stage" id="characterStage">
@@ -159,8 +233,10 @@ h1{font-size:clamp(1.5rem,3vw,2.55rem);letter-spacing:.12em;text-align:center;co
       </div>
 
       <nav class="action-rail right" aria-label="Right-side commands">
-        <button class="action-btn" data-command="System diagnostics"><span class="num">COMMAND 03</span><strong>SYSTEM DIAGNOSTICS</strong><small>Run a health check</small></button>
-        <button class="action-btn" data-command="Restore secure link"><span class="num">COMMAND 04</span><strong>RESTORE SECURE LINK</strong><small>Re-establish connection</small></button>
+        <button class="action-btn" data-action="asset-inventory" data-command="Asset inventory"><span class="num">COMMAND 05</span><strong>ASSET INVENTORY</strong><small>Review managed hardware</small></button>
+        <button class="action-btn" data-action="system-diagnostics" data-command="System diagnostics"><span class="num">COMMAND 06</span><strong>SYSTEM DIAGNOSTICS</strong><small>Run a system health check</small></button>
+        <button class="action-btn" data-action="backup-verify" data-command="Backup verification"><span class="num">COMMAND 07</span><strong>BACKUP VERIFY</strong><small>Validate recovery points</small></button>
+        <button class="action-btn" data-action="threat-intel" data-command="Threat intelligence"><span class="num">COMMAND 08</span><strong>THREAT INTEL</strong><small>Review threat indicators</small></button>
       </nav>
     </div>
   </main>
@@ -172,6 +248,9 @@ h1{font-size:clamp(1.5rem,3vw,2.55rem);letter-spacing:.12em;text-align:center;co
   <footer class="footer">SECURE • CONNECT • MONITOR • TROUBLESHOOT • REPEAT</footer>
 </div>
 <div class="shot-layer" id="shotLayer" aria-hidden="true"></div>
+<svg class="web-trail" id="webTrail" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M500 620 Q210 360 80 50 M80 50 Q480 220 500 360 Q720 220 920 100"/>
+</svg>
 <div class="toast" id="toast" role="status"></div>
 <script>
 const clock = document.getElementById('clock');
@@ -193,37 +272,112 @@ function toast(message){
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),1500);
 }
 
-function fireAt(button){
-  const stage=document.getElementById('characterStage');
-  const img=document.getElementById('character');
-  const stageRect=stage.getBoundingClientRect();
-  const target=button.getBoundingClientRect();
-  // The handheld gadget sits on the viewer-left side of the character.
-  const startX=stageRect.left + stageRect.width*0.31;
-  const startY=stageRect.top + stageRect.height*0.67;
-  const endX=target.left + target.width/2;
-  const endY=target.top + target.height/2;
-  const dx=endX-startX, dy=endY-startY;
+
+const character=document.getElementById('character');
+const characterStage=document.getElementById('characterStage');
+const shotLayer=document.getElementById('shotLayer');
+let lastAimAngle=0;
+let pointerX=innerWidth/2, pointerY=innerHeight/2;
+
+function aimAt(x,y){
+  const r=characterStage.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height*.52;
+  const dx=x-cx, dy=y-cy;
+  const angle=Math.max(-24,Math.min(24,Math.atan2(dy,Math.abs(dx))*0.55));
+  const facingLeft=dx<0;
+  lastAimAngle=angle;
+  character.style.transform=`scaleX(${facingLeft?-1:1}) rotate(${angle}deg)`;
+  character.classList.add('aiming');
+}
+window.addEventListener('pointermove',e=>{
+  pointerX=e.clientX;pointerY=e.clientY;
+  if(!character.classList.contains('demo-sequence'))aimAt(pointerX,pointerY);
+});
+window.addEventListener('pointerleave',()=>character.classList.remove('aiming'));
+
+function fireTo(x,y,button=null){
+  const r=characterStage.getBoundingClientRect();
+  // Approximate the device muzzle at the character's hand; mirror its side when aiming left.
+  const facingLeft=x < r.left+r.width/2;
+  const startX=r.left+r.width*(facingLeft?.68:.32);
+  const startY=r.top+r.height*.68;
+  const dx=x-startX,dy=y-startY,angle=Math.atan2(dy,dx);
   const beam=document.createElement('div');
   beam.className='laser';
   beam.style.left=`${startX}px`;beam.style.top=`${startY}px`;
   beam.style.width=`${Math.hypot(dx,dy)}px`;
-  beam.style.transform=`rotate(${Math.atan2(dy,dx)}rad)`;
-  document.getElementById('shotLayer').appendChild(beam);
+  beam.style.setProperty('--angle',`${angle}rad`);
+  beam.style.transform=`rotate(${angle}rad)`;
+  shotLayer.appendChild(beam);
   const burst=document.createElement('div');
-  burst.className='impact';burst.style.left=`${endX}px`;burst.style.top=`${endY}px`;
-  document.getElementById('shotLayer').appendChild(burst);
-  button.classList.remove('hit');void button.offsetWidth;button.classList.add('hit');
-  setTimeout(()=>{beam.remove();burst.remove();button.classList.remove('hit')},520);
+  burst.className='impact';burst.style.left=`${x}px`;burst.style.top=`${y}px`;
+  shotLayer.appendChild(burst);
+  const ring=document.createElement('div');
+  ring.className='energy-ring';ring.style.left=`${x}px`;ring.style.top=`${y}px`;
+  shotLayer.appendChild(ring);
+  character.classList.remove('firing');void character.offsetWidth;character.classList.add('firing');
+  if(button){button.classList.remove('hit');void button.offsetWidth;button.classList.add('hit')}
+  setTimeout(()=>{beam.remove();burst.remove();ring.remove();character.classList.remove('firing');if(button)button.classList.remove('hit')},700);
 }
+
+// Click/tap anywhere in the play area to fire toward the pointer.
+// Button clicks fire at the selected control instead.
+document.addEventListener('click',e=>{
+  if(e.target.closest('.action-btn')||e.target.closest('.demo-toggle'))return;
+  if(e.target.closest('.topbar'))return;
+  if(!character.classList.contains('demo-sequence'))fireTo(e.clientX,e.clientY);
+});
+
+// PROGRAMMABLE COMMANDS:
+// Edit this registry to connect each button to your own JavaScript workflow/API.
+// Keep external service credentials out of public GitHub Pages source code.
+window.COMMAND_ACTIONS={
+  'network-scan':()=>log('NETWORK SCAN — demo topology scan completed.'),
+  'firewall-audit':()=>log('FIREWALL AUDIT — sample policy review completed.'),
+  'endpoint-health':()=>log('ENDPOINT HEALTH — sample endpoint check completed.'),
+  'incident-response':()=>log('INCIDENT RESPONSE — sample response workflow opened.'),
+  'asset-inventory':()=>log('ASSET INVENTORY — sample asset list refreshed.'),
+  'system-diagnostics':()=>log('SYSTEM DIAGNOSTICS — sample diagnostics completed.'),
+  'backup-verify':()=>log('BACKUP VERIFY — sample recovery-point validation completed.'),
+  'threat-intel':()=>log('THREAT INTEL — sample indicator review completed.')
+};
 
 document.querySelectorAll('.action-btn').forEach(button=>{
   button.addEventListener('click',()=>{
-    const command=button.dataset.command;
-    fireAt(button);
-    log(`${command.toUpperCase()} — pulse delivered. Demo response: SUCCESS.`);
-    toast(`${command}: COMPLETE`);
+    const r=button.getBoundingClientRect();
+    const targetX=r.left+r.width/2,targetY=r.top+r.height/2;
+    aimAt(targetX,targetY);
+    fireTo(targetX,targetY,button);
+    const action=window.COMMAND_ACTIONS[button.dataset.action];
+    if(typeof action==='function')action();
+    else log(`${button.dataset.command.toUpperCase()} — no action configured.`);
+    toast(`${button.dataset.command}: PULSE SENT`);
   });
+});
+
+let demoRunning=false;
+document.getElementById('demoToggle').addEventListener('click',()=>{
+  if(demoRunning)return;
+  demoRunning=true;
+  const btn=document.getElementById('demoToggle');
+  btn.textContent='DEMO RUNNING…';
+  character.classList.remove('aiming');
+  character.style.transform='';
+  character.classList.remove('demo-sequence');void character.offsetWidth;
+  character.classList.add('demo-sequence');
+  document.getElementById('webTrail').style.animation='none';
+  void document.getElementById('webTrail').offsetWidth;
+  document.getElementById('webTrail').style.animation='';
+  log('DEMO MODE — web zip to upper-left, flip-drop through center, swing to upper-right threat marker.');
+  toast('DEMO MODE ACTIVATED');
+  setTimeout(()=>{
+    character.classList.remove('demo-sequence');
+    character.style.transform='';
+    aimAt(pointerX,pointerY);
+    btn.textContent='▶ DEMO MODE';
+    demoRunning=false;
+    log('DEMO MODE — sequence complete. Awaiting operator input.');
+  },3950);
 });
 
 // Lightweight decorative Matrix rain, resized cleanly for desktop and mobile.
