@@ -1,572 +1,365 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Terry Thompson | NOC Command Center</title>
-
-<style>
-
-:root{
-    --green:#00ff66;
-    --green2:#00cc55;
-    --bg:rgba(0,0,0,.78);
-}
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:Consolas, monospace;
-    min-height:100vh;
-    overflow-x:hidden;
-
-    background:
-    linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.6)),
-    url('Designer33.png');
-
-    background-size:cover;
-    background-position:center;
-    background-attachment:fixed;
-
-    color:white;
-}
-
-/* SCAN LINES */
-
-body::after{
-    content:'';
-    position:fixed;
-    inset:0;
-
-    background:
-    repeating-linear-gradient(
-    transparent 0px,
-    transparent 2px,
-    rgba(0,255,100,.06) 4px);
-
-    pointer-events:none;
-}
-
-/* MATRIX */
-
-#matrix{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index:-1;
-}
-
-.container{
-    padding:20px;
-    max-width:1200px;
-    margin:auto;
-}
-
-.header{
-    background:var(--bg);
-    border:2px solid var(--green);
-
-    border-radius:20px;
-
-    padding:20px;
-    margin-bottom:25px;
-
-    backdrop-filter:blur(8px);
-
-    box-shadow:0 0 20px var(--green);
-}
-
-.title{
-    color:var(--green);
-    font-size:2rem;
-}
-
-.subtitle{
-    color:#ccc;
-}
-
-.status-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-    gap:20px;
-}
-
-.panel{
-
-    background:var(--bg);
-    border:1px solid var(--green);
-
-    border-radius:15px;
-    padding:15px;
-
-    backdrop-filter:blur(8px);
-
-    transition:.3s;
-
-    box-shadow:0 0 12px rgba(0,255,100,.25);
-}
-
-.panel:hover{
-    transform:translateY(-5px);
-    box-shadow:0 0 25px var(--green);
-}
-
-.online{
-    color:var(--green);
-}
-
-.grid{
-    margin-top:25px;
-
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-}
-
-.card{
-    background:rgba(0,0,0,.8);
-
-    border:2px solid var(--green);
-
-    border-radius:18px;
-
-    min-height:140px;
-
-    cursor:pointer;
-
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-
-    text-align:center;
-
-    transition:.3s;
-}
-
-.card:hover{
-    transform:scale(1.05);
-
-    box-shadow:
-    0 0 20px var(--green),
-    0 0 40px var(--green);
-}
-
-.card h3{
-    color:var(--green);
-    margin-bottom:10px;
-}
-
-.card p{
-    color:#ddd;
-}
-
-.terminal{
-    margin-top:25px;
-
-    background:black;
-
-    border:2px solid var(--green);
-    border-radius:15px;
-
-    padding:20px;
-
-    min-height:220px;
-}
-
-.terminal-title{
-    color:var(--green);
-    margin-bottom:10px;
-}
-
-.log{
-    color:var(--green);
-    line-height:1.6;
-}
-
-.radar {
-  width:180px;
-  height:180px;
-  border:2px solid var(--green);
-  border-radius:50%;
-  margin:20px auto;
-  position:relative;
-  overflow:hidden;
-}
-
-.sweep {
-  position:absolute;
-  width:50%;
-  height:2px;
-  background:var(--green);
-  top:50%;
-  left:50%;
-  transform-origin:left center;
-  animation:spin 4s linear infinite;
-}
-
-@keyframes spin {
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
-}
-
-.footer{
-    text-align:center;
-    margin-top:30px;
-    color:#bbb;
-}
-
-button{
-    background:var(--green);
-    color:black;
-    border:none;
-    padding:12px 18px;
-    margin-top:10px;
-    border-radius:8px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.popup{
-    position:fixed;
-    inset:0;
-    display:none;
-    justify-content:center;
-    align-items:center;
-
-    background:rgba(0,0,0,.8);
-}
-
-.popup-content{
-
-    width:90%;
-    max-width:500px;
-
-    background:black;
-
-    border:2px solid var(--green);
-
-    border-radius:15px;
-    padding:20px;
-
-    color:white;
-
-    box-shadow:0 0 25px var(--green);
-}
-
-.popup-content h2{
-    color:var(--green);
-    margin-bottom:15px;
-}
-
-.close{
-    float:right;
-    cursor:pointer;
-    color:red;
-    font-size:24px;
-}
-
-@media(max-width:768px){
-
-.title{
-    font-size:1.4rem;
-}
-
-}
-
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terry Thompson | NOC Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #090d16;
+      color: #e2e8f0;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .bg-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(30, 41, 59, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.4) 1px, transparent 1px);
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .status-pulse::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background-color: #10b981;
+      animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+  </style>
 </head>
-
-<body>
-
-<canvas id="matrix"></canvas>
-
-<div class="container">
-
-<div class="header">
-
-<h1 class="title">
-NOC COMMAND CENTER
-</h1>
-
-<p class="subtitle">
-Terry Thompson | Technology Support Technician
-</p>
-
-<br>
-
-<p>
-STATUS:
-<span class="online">ONLINE</span>
-</p>
-
-<p id="clock"></p>
-
-</div>
-
-<div class="status-grid">
-
-<div class="panel">
-<h3>Network Status</h3>
-<p>All systems operational</p>
-</div>
-
-<div class="panel">
-<h3>Tickets Closed</h3>
-<p>247</p>
-</div>
-
-<div class="panel">
-<h3>Endpoint Health</h3>
-<p>98.7%</p>
-</div>
-
-</div>
-
-<div class="grid">
-
-<div class="card"
-onclick="go('https://linkedin.com')">
-<h3>LINKEDIN NODE</h3>
-<p>Professional Profile</p>
-</div>
-
-<div class="card"
-onclick="go('resume.pdf')">
-<h3>RESUME DATABASE</h3>
-<p>View Resume</p>
-</div>
-
-<div class="card"
-onclick="go('https://github.com')">
-<h3>GITHUB REPOSITORY</h3>
-<p>Projects & Code</p>
-</div>
-
-<div class="card"
-onclick="go('https://youtube.com')">
-<h3>MEDIA CENTER</h3>
-<p>Video Content</p>
-</div>
-
-<div class="card"
-onclick="showCerts()">
-<h3>CERTIFICATION VAULT</h3>
-<p>Technical Credentials</p>
-</div>
-
-<div class="card"
-onclick="downloadVCF()">
-<h3>CONTACT TERMINAL</h3>
-<p>Save Contact Card</p>
-</div>
-
-</div>
-
-<div class="radar">
-<div class="sweep"></div>
-</div>
-
-<div class="terminal">
-
-<div class="terminal-title">
-LIVE NETWORK ACTIVITY
-</div>
-
-<div id="terminalText" class="log"></div>
-
-</div>
-
-<div class="footer">
-SECURE • CONNECT • MONITOR • TROUBLESHOOT • REPEAT
-</div>
-
-</div>
-
-<div class="popup" id="popup">
-
-<div class="popup-content">
-
-<span class="close"
-onclick="closePopup()">×</span>
-
-<h2>Certification Vault</h2>
-
-<ul>
-<li>CompTIA A+</li>
-<li>CompTIA Network+</li>
-<li>CompTIA Security+</li>
-<li>Microsoft Certifications</li>
-<li>Cisco Certifications</li>
-</ul>
-
-</div>
-
-</div>
-
-<script>
-
-/* CLOCK */
-
-function updateClock(){
-
-document.getElementById("clock").innerHTML =
-new Date().toLocaleString();
-
-}
-
-setInterval(updateClock,1000);
-updateClock();
-
-/* LINKS */
-
-function go(url){
-window.open(url,'_blank');
-}
-
-/* POPUP */
-
-function showCerts(){
-document.getElementById("popup").style.display="flex";
-}
-
-function closePopup(){
-document.getElementById("popup").style.display="none";
-}
-
-/* TERMINAL */
-
-const msgs=[
-
-"AUTHENTICATION SUCCESSFUL",
-"VPN CONNECTED",
-"MONITORING ACTIVE",
-"TICKET RESOLVED",
-"NETWORK HEALTH NORMAL",
-"FIREWALL OPERATIONAL",
-"ENDPOINTS SECURED",
-"BACKUP COMPLETED",
-"SYSTEM READY"
-
-];
-
-const box=document.getElementById("terminalText");
-
-function addLog(){
-
-const m=msgs[Math.floor(Math.random()*msgs.length)];
-
-box.innerHTML=
-"> " + m + "<br>" +
-box.innerHTML;
-
-}
-
-setInterval(addLog,2000);
-
-for(let i=0;i<8;i++) addLog();
-
-/* MATRIX */
-
-const canvas=document.getElementById("matrix");
-const ctx=canvas.getContext("2d");
-
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-
-const letters=
-"01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-const fontSize=16;
-
-const columns=
-canvas.width/fontSize;
-
-const drops=[];
-
-for(let x=0;x<columns;x++)
-drops[x]=1;
-
-function draw(){
-
-ctx.fillStyle=
-"rgba(0,0,0,.08)";
-
-ctx.fillRect(
-0,
-0,
-canvas.width,
-canvas.height);
-
-ctx.fillStyle="#00ff66";
-ctx.font=
-fontSize+"px monospace";
-
-for(let i=0;i<drops.length;i++){
-
-const text=
-letters[Math.floor(Math.random()*letters.length)];
-
-ctx.fillText(
-text,
-i*fontSize,
-drops[i]*fontSize);
-
-if(
-drops[i]*fontSize>
-canvas.height &&
-Math.random()>.975
-)
-{
-drops[i]=0;
-}
-
-drops[i]++;
-}
-
-}
-
-setInterval(draw,50);
-
-/* CONTACT CARD */
-
-function downloadVCF(){
-
-const vcard=`BEGIN:VCARD
-VERSION:3.0
-FN:Terry Thompson
-ORG:Technology Support Technician
-TEL:+12535551234
-EMAIL:your@email.com
-END:VCARD`;
-
-const blob=
-new Blob([vcard],
-{
-type:'text/vcard'
-});
-
-const a=
-document.createElement('a');
-
-a.href=
-URL.createObjectURL(blob);
-
-a.download=
-'TerryThompson.vcf';
-
-a.click();
-
-}
-
-</script>
-
+<body class="bg-grid min-h-screen antialiased selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- Top Telemetry Status Bar -->
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-[#090d16]/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between text-xs font-mono">
+      <div class="flex items-center space-x-3">
+        <div class="relative flex h-2.5 w-2.5">
+          <span class="status-pulse"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        </div>
+        <span class="text-emerald-400 font-semibold tracking-wider">SYSTEMS NOMINAL</span>
+        <span class="text-slate-600 hidden sm:inline">|</span>
+        <span class="text-slate-400 hidden sm:inline">NODE: <span class="text-cyan-400">TT-NOC-01</span></span>
+      </div>
+
+      <div class="flex items-center space-x-6 text-slate-400">
+        <div class="hidden md:flex items-center space-x-2">
+          <span>UPTIME:</span>
+          <span id="uptime-counter" class="text-slate-200">99.998%</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span>UTC:</span>
+          <span id="utc-clock" class="text-cyan-400 font-medium">00:00:00</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Hero Operator Header -->
+    <section class="rounded-xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+      
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          
+          <!-- Character / Avatar Frame (Update src="Designer33.png" to match your exact uploaded filename) -->
+          <div class="relative shrink-0">
+            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-xl border-2 border-cyan-500/50 bg-slate-950/80 p-1.5 shadow-lg shadow-cyan-500/20 overflow-hidden">
+              <img src="Designer33.png" alt="Terry Thompson Operator Avatar" class="w-full h-full object-cover rounded-lg" />
+            </div>
+            <span class="absolute -bottom-2 -right-2 px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-mono text-[10px] font-bold">
+              ACTIVE
+            </span>
+          </div>
+
+          <!-- Operator Text Info -->
+          <div class="space-y-2">
+            <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-cyan-950/60 border border-cyan-800/50 text-cyan-400 text-xs font-mono">
+              <span>OPERATOR PROFILE</span>
+              <span>//</span>
+              <span>CLEARANCE: TIER-3</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              Terry Thompson
+            </h1>
+            <p class="text-lg text-slate-300 font-medium">
+              Network Operations Center (NOC) Lead &amp; Infrastructure Systems Engineer
+            </p>
+            <p class="text-sm text-slate-400 max-w-2xl leading-relaxed">
+              Specializing in high-availability network architecture, real-time incident response, automated telemetry pipelines, and zero-downtime enterprise infrastructure management.
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Action Controls -->
+        <div class="flex flex-wrap items-center gap-3 font-mono text-xs">
+          <a href="#telemetry" class="px-4 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition shadow-lg shadow-cyan-500/20">
+            [ LIVE TELEMETRY ]
+          </a>
+          <a href="#deployments" class="px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition">
+            [ SYSTEMS LOG ]
+          </a>
+          <button onclick="copyContact()" id="contact-btn" class="px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-400 transition cursor-pointer">
+            [ PING OPERATOR ]
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Metrics Grid -->
+    <section id="telemetry" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+          <span>CORE SLA AVAILABILITY</span>
+          <span class="text-emerald-400">● OPTIMAL</span>
+        </div>
+        <div class="text-2xl font-bold font-mono text-white">99.998%</div>
+        <div class="text-xs text-slate-500 mt-1">Rolling 365-day production average</div>
+      </div>
+
+      <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+          <span>MEAN TIME TO DETECT</span>
+          <span class="text-cyan-400">AUTOMATED</span>
+        </div>
+        <div class="text-2xl font-bold font-mono text-white">&lt; 18 sec</div>
+        <div class="text-xs text-slate-500 mt-1">SNMP / NetFlow / Prometheus alerts</div>
+      </div>
+
+      <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+          <span>MANAGED ENDPOINTS</span>
+          <span class="text-indigo-400">MULTI-SITE</span>
+        </div>
+        <div class="text-2xl font-bold font-mono text-white">1,450+</div>
+        <div class="text-xs text-slate-500 mt-1">Routers, firewalls, switches &amp; nodes</div>
+      </div>
+
+      <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
+        <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+          <span>ACTIVE INCIDENTS</span>
+          <span class="text-emerald-400">CLEAR</span>
+        </div>
+        <div class="text-2xl font-bold font-mono text-emerald-400">0 P1 / 0 P2</div>
+        <div class="text-xs text-slate-500 mt-1">All redundant BGP/MPLS paths active</div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Split: Live Terminal Log + Capabilities Matrix -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Left 2 Cols: Interactive Terminal & Operations Feed -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Simulated Live NOC Event Stream -->
+        <div class="rounded-xl border border-slate-800 bg-[#0b101b] overflow-hidden shadow-xl">
+          <div class="px-4 py-3 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+              <span class="ml-2 text-xs font-mono text-slate-400">noc-telemetry@terry-thompson:~# tail -f /var/log/syslog</span>
+            </div>
+            <button onclick="runDiagnostic()" class="text-xs font-mono px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 transition cursor-pointer">
+              RUN DIAGNOSTIC
+            </button>
+          </div>
+          <div id="terminal-output" class="p-4 font-mono text-xs space-y-2 h-64 overflow-y-auto text-slate-300">
+            <div class="text-slate-500">[BOOT] Initializing Terry Thompson NOC Command Interface v4.2...</div>
+            <div><span class="text-emerald-400">[OK]</span> BGP Peering Session Established — AS64512 &lt;-&gt; Core-RTR-01 (Latency: 1.4ms)</div>
+            <div><span class="text-emerald-400">[OK]</span> Firewall HA Failover Heartbeat Verified — Active/Passive Sync 100%</div>
+            <div><span class="text-cyan-400">[INFO]</span> Automated Ansible Playbook completed across 48 edge switches</div>
+            <div><span class="text-emerald-400">[OK]</span> Grafana &amp; Prometheus Metrics Ingestion Pipeline Nominal (42k metrics/sec)</div>
+            <div><span class="text-cyan-400">[INFO]</span> Zero-Trust VPN Tunnel Throughput: 4.8 Gbps | Packet Loss: 0.00%</div>
+          </div>
+        </div>
+
+        <!-- Core Infrastructure Projects / Experience -->
+        <div id="deployments" class="rounded-xl border border-slate-800 bg-slate-900/50 p-6 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h2 class="text-base font-mono font-bold text-white tracking-wide">
+              // INFRASTRUCTURE DEPLOYMENTS &amp; OPERATIONS
+            </h2>
+            <span class="text-xs font-mono text-slate-400">VERIFIED LOGS</span>
+          </div>
+
+          <div class="space-y-4">
+            <div class="p-4 rounded-lg border border-slate-800/80 bg-slate-950/60 hover:border-cyan-800/60 transition">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                <h3 class="font-semibold text-white">Enterprise NOC Monitoring &amp; Auto-Remediation Stack</h3>
+                <span class="text-xs font-mono text-cyan-400">PROMETHEUS • GRAFANA • PYTHON</span>
+              </div>
+              <p class="text-sm text-slate-400 leading-relaxed">
+                Architected unified observability across hybrid cloud and on-premise data centers, reducing alert fatigue by 64% through automated root-cause correlation and self-healing runbooks.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-lg border border-slate-800/80 bg-slate-950/60 hover:border-cyan-800/60 transition">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                <h3 class="font-semibold text-white">Multi-Site SD-WAN &amp; BGP Redundancy Overhaul</h3>
+                <span class="text-xs font-mono text-cyan-400">CISCO • PALO ALTO • BGP/OSPF</span>
+              </div>
+              <p class="text-sm text-slate-400 leading-relaxed">
+                Engineered dual-carrier failover architecture across 25+ regional hubs with sub-second convergence and automated traffic shaping for mission-critical VoIP and ERP workloads.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-lg border border-slate-800/80 bg-slate-950/60 hover:border-cyan-800/60 transition">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                <h3 class="font-semibold text-white">24/7 Incident Command &amp; Disaster Recovery Protocol</h3>
+                <span class="text-xs font-mono text-cyan-400">ITIL • ZERO-TRUST • LINUX</span>
+              </div>
+              <p class="text-sm text-slate-400 leading-relaxed">
+                Led Tier-3 escalation engineering, post-incident forensic reviews, and quarterly DR failover drills maintaining strict compliance and zero unscheduled downtime.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Technical Stack & Node Status -->
+      <div class="space-y-6">
+        
+        <!-- Technical Capabilities -->
+        <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-6 space-y-4">
+          <h2 class="text-base font-mono font-bold text-white border-b border-slate-800 pb-3">
+            // TECHNICAL MATRIX
+          </h2>
+
+          <div class="space-y-3 text-xs font-mono">
+            <div>
+              <div class="text-slate-400 mb-1.5">ROUTING &amp; SWITCHING</div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="px-2 py-1 rounded bg-slate-800 text-cyan-300 border border-slate-700">BGP</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-cyan-300 border border-slate-700">OSPF</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-cyan-300 border border-slate-700">VLAN / STP</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-cyan-300 border border-slate-700">MPLS</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-cyan-300 border border-slate-700">SD-WAN</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-slate-400 mb-1.5">SECURITY &amp; EDGE</div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="px-2 py-1 rounded bg-slate-800 text-emerald-300 border border-slate-700">Palo Alto NGFW</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-emerald-300 border border-slate-700">IPSec / WireGuard</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-emerald-300 border border-slate-700">Zero-Trust</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-emerald-300 border border-slate-700">IDS/IPS</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-slate-400 mb-1.5">OBSERVABILITY &amp; AUTOMATION</div>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="px-2 py-1 rounded bg-slate-800 text-indigo-300 border border-slate-700">Prometheus</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-indigo-300 border border-slate-700">Grafana</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-indigo-300 border border-slate-700">Ansible</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-indigo-300 border border-slate-700">Python</span>
+                <span class="px-2 py-1 rounded bg-slate-800 text-indigo-300 border border-slate-700">Linux / Bash</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subsystem Health -->
+        <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-6 space-y-4">
+          <h2 class="text-base font-mono font-bold text-white border-b border-slate-800 pb-3">
+            // SUBSYSTEM HEALTH
+          </h2>
+          <div class="space-y-3 text-xs font-mono">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-300">US-WEST-CORE-01</span>
+              <span class="text-emerald-400">ONLINE [1.2ms]</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="bg-emerald-500 h-full w-[99%]"></div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-slate-300">US-EAST-EDGE-02</span>
+              <span class="text-emerald-400">ONLINE [14.8ms]</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="bg-emerald-500 h-full w-[97%]"></div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-slate-300">TELEMETRY-INGEST</span>
+              <span class="text-cyan-400">ACTIVE [42k/s]</span>
+            </div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="bg-cyan-500 h-full w-[94%]"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 pt-6 pb-8 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-500 gap-4">
+      <div>
+        TERRY THOMPSON // NOC COMMAND CENTER — HOSTED ON GITHUB PAGES
+      </div>
+      <div>
+        STATUS: <span class="text-emerald-400">READY FOR DEPLOYMENT</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('utc-clock').textContent = now.toISOString().substring(11, 19) + ' UTC';
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    const diagnosticLogs = [
+      '<span class="text-cyan-400">[DIAG]</span> Running ICMP &amp; TCP traceroute across primary transit providers...',
+      '<span class="text-emerald-400">[PASS]</span> Tier-1 Transit A (Lumen): 0% loss, 2.1ms RTT',
+      '<span class="text-emerald-400">[PASS]</span> Tier-1 Transit B (NTT): 0% loss, 3.4ms RTT',
+      '<span class="text-emerald-400">[PASS]</span> TLS 1.3 Certificates &amp; WireGuard Keys verified valid.',
+      '<span class="text-cyan-400">[DONE]</span> All systems operating within nominal thresholds.'
+    ];
+
+    function runDiagnostic() {
+      const terminal = document.getElementById('terminal-output');
+      let delay = 0;
+      diagnosticLogs.forEach((line) => {
+        setTimeout(() => {
+          const div = document.createElement('div');
+          div.innerHTML = line;
+          terminal.appendChild(div);
+          terminal.scrollTop = terminal.scrollHeight;
+        }, delay);
+        delay += 350;
+      });
+    }
+
+    function copyContact() {
+      const btn = document.getElementById('contact-btn');
+      const originalText = btn.textContent;
+      btn.textContent = '[ SIGNAL TRANSMITTED ]';
+      btn.classList.add('border-emerald-500', 'text-emerald-400');
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.classList.remove('border-emerald-500', 'text-emerald-400');
+      }, 2500);
+    }
+  </script>
 </body>
 </html>
