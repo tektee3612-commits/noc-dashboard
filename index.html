@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Terry Thompson | NOC Command Center</title>
+
+<style>
+
+:root{
+    --green:#00ff66;
+    --green2:#00cc55;
+    --bg:rgba(0,0,0,.78);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Consolas, monospace;
+    min-height:100vh;
+    overflow-x:hidden;
+
+    background:
+    linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.6)),
+    url('Designer33.png');
+
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
+
+    color:white;
+}
+
+/* SCAN LINES */
+
+body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+
+    background:
+    repeating-linear-gradient(
+    transparent 0px,
+    transparent 2px,
+    rgba(0,255,100,.06) 4px);
+
+    pointer-events:none;
+}
+
+/* MATRIX */
+
+#matrix{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:-1;
+}
+
+.container{
+    padding:20px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.header{
+    background:var(--bg);
+    border:2px solid var(--green);
+
+    border-radius:20px;
+
+    padding:20px;
+    margin-bottom:25px;
+
+    backdrop-filter:blur(8px);
+
+    box-shadow:0 0 20px var(--green);
+}
+
+.title{
+    color:var(--green);
+    font-size:2rem;
+}
+
+.subtitle{
+    color:#ccc;
+}
+
+.status-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.panel{
+
+    background:var(--bg);
+    border:1px solid var(--green);
+
+    border-radius:15px;
+    padding:15px;
+
+    backdrop-filter:blur(8px);
+
+    transition:.3s;
+
+    box-shadow:0 0 12px rgba(0,255,100,.25);
+}
+
+.panel:hover{
+    transform:translateY(-5px);
+    box-shadow:0 0 25px var(--green);
+}
+
+.online{
+    color:var(--green);
+}
+
+.grid{
+    margin-top:25px;
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:rgba(0,0,0,.8);
+
+    border:2px solid var(--green);
+
+    border-radius:18px;
+
+    min-height:140px;
+
+    cursor:pointer;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    text-align:center;
+
+    transition:.3s;
+}
+
+.card:hover{
+    transform:scale(1.05);
+
+    box-shadow:
+    0 0 20px var(--green),
+    0 0 40px var(--green);
+}
+
+.card h3{
+    color:var(--green);
+    margin-bottom:10px;
+}
+
+.card p{
+    color:#ddd;
+}
+
+.terminal{
+    margin-top:25px;
+
+    background:black;
+
+    border:2px solid var(--green);
+    border-radius:15px;
+
+    padding:20px;
+
+    min-height:220px;
+}
+
+.terminal-title{
+    color:var(--green);
+    margin-bottom:10px;
+}
+
+.log{
+    color:var(--green);
+    line-height:1.6;
+}
+
+.radar {
+  width:180px;
+  height:180px;
+  border:2px solid var(--green);
+  border-radius:50%;
+  margin:20px auto;
+  position:relative;
+  overflow:hidden;
+}
+
+.sweep {
+  position:absolute;
+  width:50%;
+  height:2px;
+  background:var(--green);
+  top:50%;
+  left:50%;
+  transform-origin:left center;
+  animation:spin 4s linear infinite;
+}
+
+@keyframes spin {
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+.footer{
+    text-align:center;
+    margin-top:30px;
+    color:#bbb;
+}
+
+button{
+    background:var(--green);
+    color:black;
+    border:none;
+    padding:12px 18px;
+    margin-top:10px;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.popup{
+    position:fixed;
+    inset:0;
+    display:none;
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(0,0,0,.8);
+}
+
+.popup-content{
+
+    width:90%;
+    max-width:500px;
+
+    background:black;
+
+    border:2px solid var(--green);
+
+    border-radius:15px;
+    padding:20px;
+
+    color:white;
+
+    box-shadow:0 0 25px var(--green);
+}
+
+.popup-content h2{
+    color:var(--green);
+    margin-bottom:15px;
+}
+
+.close{
+    float:right;
+    cursor:pointer;
+    color:red;
+    font-size:24px;
+}
+
+@media(max-width:768px){
+
+.title{
+    font-size:1.4rem;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="container">
+
+<div class="header">
+
+<h1 class="title">
+NOC COMMAND CENTER
+</h1>
+
+<p class="subtitle">
+Terry Thompson | Technology Support Technician
+</p>
+
+<br>
+
+<p>
+STATUS:
+<span class="online">ONLINE</span>
+</p>
+
+<p id="clock"></p>
+
+</div>
+
+<div class="status-grid">
+
+<div class="panel">
+<h3>Network Status</h3>
+<p>All systems operational</p>
+</div>
+
+<div class="panel">
+<h3>Tickets Closed</h3>
+<p>247</p>
+</div>
+
+<div class="panel">
+<h3>Endpoint Health</h3>
+<p>98.7%</p>
+</div>
+
+</div>
+
+<div class="grid">
+
+<div class="card"
+onclick="go('https://linkedin.com')">
+<h3>LINKEDIN NODE</h3>
+<p>Professional Profile</p>
+</div>
+
+<div class="card"
+onclick="go('resume.pdf')">
+<h3>RESUME DATABASE</h3>
+<p>View Resume</p>
+</div>
+
+<div class="card"
+onclick="go('https://github.com')">
+<h3>GITHUB REPOSITORY</h3>
+<p>Projects & Code</p>
+</div>
+
+<div class="card"
+onclick="go('https://youtube.com')">
+<h3>MEDIA CENTER</h3>
+<p>Video Content</p>
+</div>
+
+<div class="card"
+onclick="showCerts()">
+<h3>CERTIFICATION VAULT</h3>
+<p>Technical Credentials</p>
+</div>
+
+<div class="card"
+onclick="downloadVCF()">
+<h3>CONTACT TERMINAL</h3>
+<p>Save Contact Card</p>
+</div>
+
+</div>
+
+<div class="radar">
+<div class="sweep"></div>
+</div>
+
+<div class="terminal">
+
+<div class="terminal-title">
+LIVE NETWORK ACTIVITY
+</div>
+
+<div id="terminalText" class="log"></div>
+
+</div>
+
+<div class="footer">
+SECURE • CONNECT • MONITOR • TROUBLESHOOT • REPEAT
+</div>
+
+</div>
+
+<div class="popup" id="popup">
+
+<div class="popup-content">
+
+<span class="close"
+onclick="closePopup()">×</span>
+
+<h2>Certification Vault</h2>
+
+<ul>
+<li>CompTIA A+</li>
+<li>CompTIA Network+</li>
+<li>CompTIA Security+</li>
+<li>Microsoft Certifications</li>
+<li>Cisco Certifications</li>
+</ul>
+
+</div>
+
+</div>
+
+<script>
+
+/* CLOCK */
+
+function updateClock(){
+
+document.getElementById("clock").innerHTML =
+new Date().toLocaleString();
+
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+/* LINKS */
+
+function go(url){
+window.open(url,'_blank');
+}
+
+/* POPUP */
+
+function showCerts(){
+document.getElementById("popup").style.display="flex";
+}
+
+function closePopup(){
+document.getElementById("popup").style.display="none";
+}
+
+/* TERMINAL */
+
+const msgs=[
+
+"AUTHENTICATION SUCCESSFUL",
+"VPN CONNECTED",
+"MONITORING ACTIVE",
+"TICKET RESOLVED",
+"NETWORK HEALTH NORMAL",
+"FIREWALL OPERATIONAL",
+"ENDPOINTS SECURED",
+"BACKUP COMPLETED",
+"SYSTEM READY"
+
+];
+
+const box=document.getElementById("terminalText");
+
+function addLog(){
+
+const m=msgs[Math.floor(Math.random()*msgs.length)];
+
+box.innerHTML=
+"> " + m + "<br>" +
+box.innerHTML;
+
+}
+
+setInterval(addLog,2000);
+
+for(let i=0;i<8;i++) addLog();
+
+/* MATRIX */
+
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+const letters=
+"01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const fontSize=16;
+
+const columns=
+canvas.width/fontSize;
+
+const drops=[];
+
+for(let x=0;x<columns;x++)
+drops[x]=1;
+
+function draw(){
+
+ctx.fillStyle=
+"rgba(0,0,0,.08)";
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height);
+
+ctx.fillStyle="#00ff66";
+ctx.font=
+fontSize+"px monospace";
+
+for(let i=0;i<drops.length;i++){
+
+const text=
+letters[Math.floor(Math.random()*letters.length)];
+
+ctx.fillText(
+text,
+i*fontSize,
+drops[i]*fontSize);
+
+if(
+drops[i]*fontSize>
+canvas.height &&
+Math.random()>.975
+)
+{
+drops[i]=0;
+}
+
+drops[i]++;
+}
+
+}
+
+setInterval(draw,50);
+
+/* CONTACT CARD */
+
+function downloadVCF(){
+
+const vcard=`BEGIN:VCARD
+VERSION:3.0
+FN:Terry Thompson
+ORG:Technology Support Technician
+TEL:+12535551234
+EMAIL:your@email.com
+END:VCARD`;
+
+const blob=
+new Blob([vcard],
+{
+type:'text/vcard'
+});
+
+const a=
+document.createElement('a');
+
+a.href=
+URL.createObjectURL(blob);
+
+a.download=
+'TerryThompson.vcf';
+
+a.click();
+
+}
+
+</script>
+
+</body>
+</html>
